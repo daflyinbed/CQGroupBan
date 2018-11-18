@@ -118,18 +118,39 @@ CQEVENT(int32_t, __eventGroupMsg, 36)(int32_t subType, int32_t msgId, int64_t fr
 			}
 		}
 		else {
-			old = "";
-			qq2 = 0;
 //			CQ_sendPrivateMsg(ac, 2101784264, _i64toa(qq1, ws, 10));
 //			CQ_addLog(ac, CQLOG_ERROR, "口", _i64toa(qq1, ws, 10));
 			CQ_sendGroupMsg(ac, 288953819, "抓到了你 复读姬！");
-			if (i > 4) {
-				CQ_setGroupBan(ac, 288953819, qq1, 300);
+			switch (rand()%3)
+			{
+			case 0:
+				if (i > 4) {
+					CQ_setGroupBan(ac, 288953819, qq1, 300);
+				}
+				else {
+					CQ_setGroupBan(ac, 288953819, qq1, (i + 1) * 60);
+				}
+				break;
+			case 1:
+				if (i > 4) {
+					CQ_setGroupBan(ac, 288953819, qq2, 300);
+				}
+				else {
+					CQ_setGroupBan(ac, 288953819, qq2, (i + 1) * 60);
+				}
+				break;
+			case 2:
+				if (i > 4) {
+					CQ_setGroupBan(ac, 288953819, fromQQ, 300);
+				}
+				else {
+					CQ_setGroupBan(ac, 288953819, fromQQ, (i + 1) * 60);
+				}
+				break;
 			}
-			else {
-				CQ_setGroupBan(ac, 288953819, qq1, (i + 1) * 60);
-			}
+			qq2 = 0;
 			i = 0;
+			old = "";
 		}
 		//string c = "old=" + old + "; qq1=" + _i64toa(qq1, ws, 10) + "; qq2=" + _i64toa(qq2, ws, 10)+"i="+ to_string(i);
 		//CQ_sendPrivateMsg(ac, 2101784264,c.c_str());
