@@ -4,6 +4,7 @@
 * Written by Coxxs & Thanks for the help of orzFly
 */
 
+#include<string>
 #include "stdafx.h"
 #include "string"
 #include "cqp.h"
@@ -88,109 +89,51 @@ CQEVENT(int32_t, __eventPrivateMsg, 24)(int32_t subType, int32_t msgId, int64_t 
 	//如果不回复消息，交由之后的应用/过滤器处理，这里 return EVENT_IGNORE - 忽略本条消息
 	return EVENT_IGNORE;
 }
-
+string old = "";
+int64_t qq1 = 0;
+int64_t qq2 = 0;
+int i = 0;
 
 /*
 * Type=2 群消息
 */
 CQEVENT(int32_t, __eventGroupMsg, 36)(int32_t subType, int32_t msgId, int64_t fromGroup, int64_t fromQQ, const char *fromAnonymous, const char *msg, int32_t font) {
-
-	return EVENT_IGNORE; //关于返回值说明, 见“_eventPrivateMsg”函数
+	if (fromGroup == 288953819) {
+		char ws[65];
+		string s = msg;
+		if (old != msg&&i<=1) {
+			old = msg;
+			qq1 = fromQQ;
+			qq2 = 0;
+			i = 0;
+		}
+		else if(old==msg) {
+			i++;
+			if (qq2 == 0) {
+				qq2 = fromQQ;
+			}
+			else {
+				qq1 = qq2;
+				qq2 = fromQQ;
+			}
+		}
+		else {
+			old = "";
+			qq2 = 0;
+//			CQ_sendPrivateMsg(ac, 2101784264, _i64toa(qq1, ws, 10));
+//			CQ_addLog(ac, CQLOG_ERROR, "口", _i64toa(qq1, ws, 10));
+			CQ_sendGroupMsg(ac, 288953819, "抓到了你 复读姬！");
+			if (i > 4) {
+				CQ_setGroupBan(ac, 288953819, qq1, 300);
+			}
+			else {
+				CQ_setGroupBan(ac, 288953819, qq1, (i + 1) * 60);
+			}
+			i = 0;
+		}
+		//string c = "old=" + old + "; qq1=" + _i64toa(qq1, ws, 10) + "; qq2=" + _i64toa(qq2, ws, 10)+"i="+ to_string(i);
+		//CQ_sendPrivateMsg(ac, 2101784264,c.c_str());
+	}
+	return EVENT_IGNORE;
 }
 
-
-/*
-* Type=4 讨论组消息
-*/
-CQEVENT(int32_t, __eventDiscussMsg, 32)(int32_t subType, int32_t msgId, int64_t fromDiscuss, int64_t fromQQ, const char *msg, int32_t font) {
-
-	return EVENT_IGNORE; //关于返回值说明, 见“_eventPrivateMsg”函数
-}
-
-
-/*
-* Type=101 群事件-管理员变动
-* subType 子类型，1/被取消管理员 2/被设置管理员
-*/
-CQEVENT(int32_t, __eventSystem_GroupAdmin, 24)(int32_t subType, int32_t sendTime, int64_t fromGroup, int64_t beingOperateQQ) {
-
-	return EVENT_IGNORE; //关于返回值说明, 见“_eventPrivateMsg”函数
-}
-
-
-/*
-* Type=102 群事件-群成员减少
-* subType 子类型，1/群员离开 2/群员被踢 3/自己(即登录号)被踢
-* fromQQ 操作者QQ(仅subType为2、3时存在)
-* beingOperateQQ 被操作QQ
-*/
-CQEVENT(int32_t, __eventSystem_GroupMemberDecrease, 32)(int32_t subType, int32_t sendTime, int64_t fromGroup, int64_t fromQQ, int64_t beingOperateQQ) {
-
-	return EVENT_IGNORE; //关于返回值说明, 见“_eventPrivateMsg”函数
-}
-
-
-/*
-* Type=103 群事件-群成员增加
-* subType 子类型，1/管理员已同意 2/管理员邀请
-* fromQQ 操作者QQ(即管理员QQ)
-* beingOperateQQ 被操作QQ(即加群的QQ)
-*/
-CQEVENT(int32_t, __eventSystem_GroupMemberIncrease, 32)(int32_t subType, int32_t sendTime, int64_t fromGroup, int64_t fromQQ, int64_t beingOperateQQ) {
-
-	return EVENT_IGNORE; //关于返回值说明, 见“_eventPrivateMsg”函数
-}
-
-
-/*
-* Type=201 好友事件-好友已添加
-*/
-CQEVENT(int32_t, __eventFriend_Add, 16)(int32_t subType, int32_t sendTime, int64_t fromQQ) {
-
-	return EVENT_IGNORE; //关于返回值说明, 见“_eventPrivateMsg”函数
-}
-
-
-/*
-* Type=301 请求-好友添加
-* msg 附言
-* responseFlag 反馈标识(处理请求用)
-*/
-CQEVENT(int32_t, __eventRequest_AddFriend, 24)(int32_t subType, int32_t sendTime, int64_t fromQQ, const char *msg, const char *responseFlag) {
-
-	//CQ_setFriendAddRequest(ac, responseFlag, REQUEST_ALLOW, "");
-
-	return EVENT_IGNORE; //关于返回值说明, 见“_eventPrivateMsg”函数
-}
-
-
-/*
-* Type=302 请求-群添加
-* subType 子类型，1/他人申请入群 2/自己(即登录号)受邀入群
-* msg 附言
-* responseFlag 反馈标识(处理请求用)
-*/
-CQEVENT(int32_t, __eventRequest_AddGroup, 32)(int32_t subType, int32_t sendTime, int64_t fromGroup, int64_t fromQQ, const char *msg, const char *responseFlag) {
-
-	//if (subType == 1) {
-	//	CQ_setGroupAddRequestV2(ac, responseFlag, REQUEST_GROUPADD, REQUEST_ALLOW, "");
-	//} else if (subType == 2) {
-	//	CQ_setGroupAddRequestV2(ac, responseFlag, REQUEST_GROUPINVITE, REQUEST_ALLOW, "");
-	//}
-
-	return EVENT_IGNORE; //关于返回值说明, 见“_eventPrivateMsg”函数
-}
-
-/*
-* 菜单，可在 .json 文件中设置菜单数目、函数名
-* 如果不使用菜单，请在 .json 及此处删除无用菜单
-*/
-CQEVENT(int32_t, __menuA, 0)() {
-	MessageBoxA(NULL, "这是menuA，在这里载入窗口，或者进行其他工作。", "" ,0);
-	return 0;
-}
-
-CQEVENT(int32_t, __menuB, 0)() {
-	MessageBoxA(NULL, "这是menuB，在这里载入窗口，或者进行其他工作。", "" ,0);
-	return 0;
-}
